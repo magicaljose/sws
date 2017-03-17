@@ -5,7 +5,7 @@
 #include "../SWS/game.h"
 
 
-void printGameTable(Game &testGame);
+void stub_checkForWin(PileMap_t &pileMap, GameState_t &state);
 
 
 // Test class for SWS project
@@ -33,7 +33,7 @@ SWS_Test::SWS_Test()
 // Test basic game object init
 void SWS_Test::testBasicGameInit()
 {
-    Game testGame(STD_DECK);
+    Game testGame(STD_DECK, stub_checkForWin);
 
     // Verify card count
     QVERIFY(testGame.deck.cardList.size() == CARDS_PER_STD_DECK);
@@ -42,7 +42,7 @@ void SWS_Test::testBasicGameInit()
 // Test game pile registration
 void SWS_Test::testPileRegistration()
 {
-    Game testGame(STD_DECK);
+    Game testGame(STD_DECK, stub_checkForWin);
 
     // Verify empty pile map
     QVERIFY(testGame.pileMap.size() == 0);
@@ -67,23 +67,23 @@ void SWS_Test::testPileRegistration()
     QVERIFY(testGame.pileMap[FOUNDATION].size() == 2);
     QVERIFY(testGame.pileMap[CELL].size() == 3);
     QVERIFY(testGame.pileMap[TABLEAU].size() == 9);
-
-    //printGameTable(testGame);
 }
 
 // Test card transfers between piles
 void SWS_Test::testCardXfer()
 {
-    Game testGame(STD_DECK);
-
+    Game testGame(STD_DECK, stub_checkForWin);
+    GameError_t status;
 
     // Register piles
     testGame.registerPile(DECK, 1, 0, 0);
     testGame.registerPile(TABLEAU, 4, 0, 1);
 
     // Move 1 card to TABLEAU pile 0 and 2 cards to TABLEAU pile 2
-    testGame.moveCard(testGame.pileMap[DECK][0], testGame.pileMap[TABLEAU][0]);
-    testGame.moveCards(testGame.pileMap[DECK][0], testGame.pileMap[TABLEAU][2], 2);
+    status = testGame.moveCard(testGame.pileMap[DECK][0], testGame.pileMap[TABLEAU][0]);
+    QVERIFY(status == GS_OK);
+    status = testGame.moveCards(testGame.pileMap[DECK][0], testGame.pileMap[TABLEAU][2], 2);
+    QVERIFY(status == GS_OK);
     QVERIFY(testGame.pileMap[TABLEAU][0]->getCardCount() == 1);
     QVERIFY(testGame.pileMap[TABLEAU][1]->getCardCount() == 0);
     QVERIFY(testGame.pileMap[TABLEAU][2]->getCardCount() == 2);
@@ -91,7 +91,8 @@ void SWS_Test::testCardXfer()
     QVERIFY(testGame.pileMap[DECK][0]->getCardCount() == 49);
 
     // Attempt to move from empty pile
-    testGame.moveCard(testGame.pileMap[TABLEAU][1], testGame.pileMap[TABLEAU][3]);
+    status = testGame.moveCard(testGame.pileMap[TABLEAU][1], testGame.pileMap[TABLEAU][3]);
+    QVERIFY(status == GS_EMPTY_PILE);
     QVERIFY(testGame.pileMap[TABLEAU][1]->getCardCount() == 0);
     QVERIFY(testGame.pileMap[TABLEAU][3]->getCardCount() == 0);
 }
@@ -100,10 +101,9 @@ void SWS_Test::testCardXfer()
 ////////////////////////
 // Standard functions
 
-// Print game table
-void printGameTable(Game &testGame)
+// Check for win stub
+void stub_checkForWin(PileMap_t &pileMap, GameState_t &state)
 {
-    testGame.print();
 }
 
 

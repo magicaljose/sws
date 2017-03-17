@@ -59,19 +59,19 @@ typedef enum
 // Game method return statuses
 typedef enum
 {
-    GS_OK            = 0x00,
-    GS_INS_PILE_SIZE = 0x01,
-    GS_EMPTY_PILE    = 0x02,
-    GS_ERROR         = 0x03
+    GS_OK                 = 0x00,  // OK
+    GS_INS_PILE_SIZE      = 0x01,  // Insufficient pile size
+    GS_EMPTY_PILE         = 0x02,  // Empty pile
+    GS_ERROR              = 0x0f   // Misc error
 } GameError_t;
 
 // Game state
 typedef enum
 {
-    GAME_IN_PROGRESS,
-    GAME_ERROR,
-    GAME_WON,
-    GAME_OVER
+    GAME_IN_PROGRESS,  // Game may continue and is in progress
+    GAME_ERROR,        // Game has encountered an error
+    GAME_WON,          // Game has been won
+    GAME_OVER          // Game has become unwinnable
 } GameState_t;
 
 // 2D coordinate container
@@ -131,7 +131,7 @@ public:
 
     void registerPile(PileType_t pileType, int pileCount, int xLoc, int yLoc);
 
-    bool deal(PileType_t pileType = TABLEAU, DealMethod_t dealMethod = INCREMENTING);
+    GameError_t deal(PileType_t pileType = TABLEAU, DealMethod_t dealMethod = INCREMENTING);
     GameError_t moveCards(Pile *pSrcPile, Pile *pDstPile, int n);
     inline GameError_t moveCard(Pile *pSrcPile, Pile *pDstPile)  { return moveCards(pSrcPile, pDstPile, 1); }
 

@@ -119,16 +119,19 @@ void Game::registerPile(PileType_t pileType, int pileCount, int xLoc, int yLoc)
 }
 
 // Deal cards to piles as specified; returns 'true' if no cards to deal
-bool Game::deal(PileType_t pileType, DealMethod_t dealMethod)
+GameError_t Game::deal(PileType_t pileType, DealMethod_t dealMethod)
 {
-    if (PILE_DECK->getCardCount() == 0) return true;
+    GameError_t status = GS_ERROR;
+
+    if (PILE_DECK->getCardCount() == 0) return GS_EMPTY_PILE;
 
     switch (dealMethod)
     {
     case SINGLE:
         for (auto pPile : PILE_VECTOR(pileType))
         {
-            moveCard(PILE_DECK, pPile);
+            status = moveCard(PILE_DECK, pPile);
+            if (status != GS_OK) goto deal_error;
             pPile->topCard()->flipFaceUp();
         }
         break;
@@ -138,7 +141,8 @@ bool Game::deal(PileType_t pileType, DealMethod_t dealMethod)
         {
             for (auto j = i; j < PILE_VECTOR(pileType).size(); j++)
             {
-                moveCard(PILE_DECK, PILE(pileType, j));
+                status = moveCard(PILE_DECK, PILE(pileType, j));
+                if (status != GS_OK) goto deal_error;
                 if (i == j) PILE(pileType, j)->topCard()->flipFaceUp();
             }
         }
@@ -149,7 +153,8 @@ bool Game::deal(PileType_t pileType, DealMethod_t dealMethod)
         {
             for (auto j = 0; j < i; j++)
             {
-                moveCard(PILE_DECK, PILE(pileType, j));
+                status = moveCard(PILE_DECK, PILE(pileType, j));
+                if (status != GS_OK) goto deal_error;
                 if (j == (i - 1)) PILE(pileType, j)->topCard()->flipFaceUp();
             }
         }
@@ -160,7 +165,8 @@ bool Game::deal(PileType_t pileType, DealMethod_t dealMethod)
         {
             for (auto pPile : PILE_VECTOR(pileType))
             {
-                moveCard(PILE_DECK, pPile);
+                status = moveCard(PILE_DECK, pPile);
+                if (status != GS_OK) goto deal_error;
             }
         }
         for (auto pPile : PILE_VECTOR(pileType))
@@ -170,7 +176,8 @@ bool Game::deal(PileType_t pileType, DealMethod_t dealMethod)
         break;
     }
 
-    return false;
+deal_error:
+    return status;
 }
 
 // Move card(s) from one pile to another
@@ -179,7 +186,8 @@ GameError_t Game::moveCards(Pile *pSrcPile, Pile *pDstPile, int n)
     Card **pCard;
 
     // Check card count of source pile
-    if (pSrcPile->getCardCount() < n) return GS_EMPTY_PILE;
+    if (pSrcPile->getCardCount() == 0) return GS_EMPTY_PILE;
+    if (pSrcPile->getCardCount() < n) return GS_INS_PILE_SIZE;
 
     pCard = new Card * [n];
 

@@ -35,17 +35,22 @@ const char *cardStrMatrix[][2] =
 ////////////////////////////////
 // GameConsole class methods
 
-#define STRINGIFY(x)  #x  // Convert macro to string
 GameConsole::GameConsole()
 {
 }
 
 // Standard output
-QTextStream & GameConsole::qOut()
+#define qout  QTextStream(stdout)
+
+// Standard input
+inline QTextStream & qIn()
 {
-    static QTextStream ts(stdout);
-    return ts;
+    static QTextStream s(stdin);
+    return s;
 }
+#define qin  qIn()
+#define consume()  readLine()  // Consume remaining words
+
 
 #define COL_WIDTH   (CARD_WIDTH + 1)
 #define ROW_HEIGHT  (CARD_HEIGHT + 2)  // Include room for pile headers
@@ -264,16 +269,20 @@ void GameConsole::printTable(PileMap_t &pileMap)
         }
     }
 
-    qOut() << tableStr;
+    qout << tableStr;
 }
 
 // Collect console input
 void GameConsole::collectInput(Cdb_t &cdb)
 {
-    QTextStream s(stdin);
-    QString qIn = s.readLine();
+    QString word;
 
-    CommandParse(qIn, cdb);
+    qin >> word;
+
+    CommandParse(word, cdb);
+
+    // Consume lingering words
+    qin.consume();
 }
 
 

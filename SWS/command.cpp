@@ -20,12 +20,6 @@ void CommandParse(const QString &str, Cdb_t &newCdb)
 {
     static const CmdMap_t CmdMap = { CMD_MAP_PAIRS };
     QString s = str.toUpper();
-    QRegExp rx("[, ]"); // Match space or comma separator
-    QStringList argL = s.split(rx, QString::SkipEmptyParts);
 
-    if (argL.size() > 0)
-    {
-        // Collect command ID
-        newCdb.cmdId = CmdMap.value(argL.at(0), _INVALID_CMD);
-    }
+    newCdb.cmdId = CmdMap.value(s, _INVALID_CMD);
 }

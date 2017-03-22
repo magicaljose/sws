@@ -28,7 +28,7 @@ public:
 
     void printTable(PileMap_t &pileMap);
 
-    void collectInput(Cdb_t &cdb);
+    CmdError_t collectInput(Cdb_t &cdb);
 
 private:
     QTextStream & qOut();

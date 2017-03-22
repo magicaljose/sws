@@ -1,8 +1,15 @@
+#include <QMap>
 #include <QDebug>
 #include "console.h"
 #include "command.h"
+#include "game.h"
 
 using namespace std;
+
+
+#define INVALID  (-1)
+
+#define STRINGIFY(x)  #x
 
 
 // Array of printable card segments
@@ -30,6 +37,10 @@ const char *cardStrMatrix[][2] =
 };
 #define CARD_LINE(line, state)  (cardStrMatrix[line][state])
 #define CARD_LINE_1_ALT         (strTable[1])
+
+
+CmdError_t getCmdId(const QString &str, CmdId_t &cmdId);
+CmdError_t getArg(const QString &str, CdbPileItem_t &pileItem);
 
 
 ////////////////////////////////
@@ -273,16 +284,45 @@ void GameConsole::printTable(PileMap_t &pileMap)
 }
 
 // Collect console input
-void GameConsole::collectInput(Cdb_t &cdb)
+CmdError_t GameConsole::collectInput(Cdb_t &cdb)
 {
-    QString word;
+    QString cmdStr;
+    QString arg1, arg2;
+    CmdError_t status = CS_ERROR;
 
-    qin >> word;
+    // Input collected here is not contextual; parse whatever we can make use of
+    cmdStr = qin.readLine();
 
-    CommandParse(word, cdb);
+//    // Collect command ID
+//    qin >> cmdStr;
+//    status = getCmdId(cmdStr, cdb.cmdId);
+//    if (status != CS_OK) goto input_error;
 
+//    // Collect 1st arg
+//    qin >> arg1;
+//    status = getArg(arg1, cdb.arg1);
+//    if (status == CS_BAD_ARG)
+//    {
+//        status = CS_BAD_ARG_1;
+//        goto input_error;
+//    }
+//    else if (status != CS_OK) goto input_error;
+
+//    // Collect 2nd arg
+//    qin >> arg2;
+//    status = getArg(arg2, cdb.arg2);
+//    if (status == CS_BAD_ARG)
+//    {
+//        status = CS_BAD_ARG_2;
+//        goto input_error;
+//    }
+//    else if (status != CS_OK) goto input_error;
+
+input_error:
     // Consume lingering words
     qin.consume();
+
+    return status;
 }
 
 
@@ -336,4 +376,48 @@ const char * GetCardInitialStr(CardValue_t nameId)
         {"Jo", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
     return cardITable[nameId];
+}
+
+#define CMD_MAP_PAIR(c)  {STRINGIFY(c), _##c##_CMD}
+#define CMD_MAP_PAIRS    \
+    CMD_MAP_PAIR(CLEAR), \
+    CMD_MAP_PAIR(KEY),   \
+    CMD_MAP_PAIR(MOVE),  \
+    CMD_MAP_PAIR(FLIP),  \
+    CMD_MAP_PAIR(QUIT),  \
+    CMD_MAP_PAIR(UNDO),  \
+    CMD_MAP_PAIR(REDO),  \
+    CMD_MAP_PAIR(FORCE)
+// Parse command string; generate command ID
+CmdError_t getCmdId(const QString &str, CmdId_t &cmdId)
+{
+    static const QMap<QString, CmdId_t> CmdMap = { CMD_MAP_PAIRS };
+    QString s = str.toUpper();
+
+    cmdId = CmdMap.value(s, _INVALID_CMD);
+    if (cmdId == _INVALID_CMD) return CS_BAD_CMD;
+
+    return CS_OK;
+}
+
+// Parse command pile arg
+#define PILE_TYPE_PAIRS \
+    {'D', DECK},        \
+    {'S', DISCARD},     \
+    {'W', WASTE},       \
+    {'F', FOUNDATION},  \
+    {'C', CELL},        \
+    {'T', TABLEAU}
+CmdError_t getArg(const QString &str, CdbPileItem_t &pileItem)
+{
+    static const QMap<QChar, PileType_t> ArgPileMap = { PILE_TYPE_PAIRS };
+    QString s = str.toUpper();
+    bool ok;
+
+    pileItem.pileType = ArgPileMap.value(s[0], INVALID_PILE_TYPE);
+    s.remove(0, 1);
+    pileItem.id = s.toInt(&ok, 10);
+    if (!ok || pileItem.pileType == INVALID_PILE_TYPE) return CS_BAD_ARG;
+
+    return CS_OK;
 }

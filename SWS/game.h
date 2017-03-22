@@ -28,7 +28,8 @@ typedef enum
     WASTE,
     FOUNDATION,
     CELL,
-    TABLEAU
+    TABLEAU,
+    INVALID_PILE_TYPE
 } PileType_t;
 
 // Deck deal methods

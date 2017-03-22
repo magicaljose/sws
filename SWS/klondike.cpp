@@ -35,6 +35,7 @@ int Klondike(int argc, char *argv[])
     bool gameSeedOk;
     uint gameSeed = 0;
     Cdb_t cdb;
+    CmdError_t cmdStatus;
 
     // Set up parser
     QCoreApplication::setApplicationName("Klondike");
@@ -76,7 +77,7 @@ int Klondike(int argc, char *argv[])
     do
     {
         klondike.print(console); // Print table
-        console.collectInput(cdb); // Collect input
+        cmdStatus = console.collectInput(cdb); // Collect input
         // Handle command
         break;
     } while(!klondike.isGameFinished());

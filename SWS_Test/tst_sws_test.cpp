@@ -102,7 +102,7 @@ void SWS_Test::testCardXfer()
 // Standard functions
 
 // Check for win stub
-void stub_checkForWin(PileMap_t &pileMap, GameState_t &state)
+void stub_checkForWin(PileMap_t &, GameState_t &)
 {
 }
 

@@ -16,6 +16,8 @@
 #define NEXT      (-1)  // Offset for next card
 #define PREVIOUS  (1)   // Offset for previous card
 
+#define INVALID_PILE_ID  (-1)
+
 
 class GameConsole;
 
@@ -31,6 +33,7 @@ typedef enum
     TABLEAU,
     INVALID_PILE_TYPE
 } PileType_t;
+#define IS_VALID_PILE_TYPE(p)  ((p) != INVALID_PILE_TYPE)
 
 // Deck deal methods
 typedef enum

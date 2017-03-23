@@ -4,6 +4,9 @@
 #include "game.h"
 
 
+#define CDB_MAX_ARG_COUNT  (2)
+
+
 // Valid command statuses
 typedef enum
 {
@@ -20,6 +23,7 @@ typedef enum
 // Valid commands
 typedef enum
 {
+    _INVALID_CMD,
     _CLEAR_CMD,
     _KEY_CMD,
     _MOVE_CMD,
@@ -27,8 +31,7 @@ typedef enum
     _QUIT_CMD,
     _UNDO_CMD,
     _REDO_CMD,
-    _FORCE_CMD,
-    _INVALID_CMD
+    _FORCE_CMD
 } CmdId_t;
 
 // Cdb pile item identifier
@@ -44,13 +47,12 @@ typedef struct _Cdb_t
     CmdId_t cmdId;
     union
     {
-        CdbPileItem_t src;
-        CdbPileItem_t arg1;
-    };
-    union
-    {
-        CdbPileItem_t dst;
-        CdbPileItem_t arg2;
+        struct
+        {
+            CdbPileItem_t src;
+            CdbPileItem_t dst;
+        };
+        CdbPileItem_t arg[CDB_MAX_ARG_COUNT];
     };
 } Cdb_t;
 

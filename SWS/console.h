@@ -29,6 +29,7 @@ public:
     void printTable(PileMap_t &pileMap);
 
     CmdError_t collectInput(Cdb_t &cdb);
+    CmdError_t collectInput(Cdb_t &cdb, QTextStream &is);
 
 private:
     QTextStream & qOut();
@@ -36,6 +37,9 @@ private:
     int calcTableHeight(PileMap_t &pileMap);
     int imprintCard(Card *pCard, ConsoleTable_t &table, int strIdx, bool overlapBelow, bool overlapAbove);
     void imprintPile(Pile *pPile, ConsoleTable_t &table);
+    CmdError_t tokenize(Cdb_t &cdb, const QStringList &wordList);
+    CmdError_t getCmdId(const QString &str, CmdId_t &cmdId);
+    CmdError_t getArg(const QString &str, CdbPileItem_t &pileItem);
 };
 
 #endif // CONSOLE_H

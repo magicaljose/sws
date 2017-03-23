@@ -3,6 +3,10 @@
 
 #define private public
 #include "../SWS/game.h"
+#include "../SWS/console.h"
+
+
+#define TEST_INPUT(s)  QTextStream(s)
 
 
 void stub_checkForWin(PileMap_t &pileMap, GameState_t &state);
@@ -17,9 +21,13 @@ public:
     SWS_Test();
 
 private Q_SLOTS:
+    // Game control tests
     void testBasicGameInit();
     void testPileRegistration();
     void testCardXfer();
+
+    // Console tests
+    void testConsoleInputParsing();
 };
 
 
@@ -95,6 +103,46 @@ void SWS_Test::testCardXfer()
     QVERIFY(status == GS_EMPTY_PILE);
     QVERIFY(testGame.pileMap[TABLEAU][1]->getCardCount() == 0);
     QVERIFY(testGame.pileMap[TABLEAU][3]->getCardCount() == 0);
+}
+
+// Test command line <-> CDB parsing
+void SWS_Test::testConsoleInputParsing()
+{
+    GameConsole console;
+    Cdb_t testCdb;
+    CmdError_t status;
+
+    // Parse command with 2 good args
+    status = console.collectInput(testCdb, TEST_INPUT("move t1 f3"));
+    QVERIFY(status == CS_OK); // Max args set to '2' so should return 'CS_OK'
+    QVERIFY(testCdb.cmdId = _MOVE_CMD);
+    QVERIFY(testCdb.arg[0].pileType == TABLEAU);
+    QVERIFY(testCdb.arg[0].id == 1);
+    QVERIFY(testCdb.arg[1].pileType == FOUNDATION);
+    QVERIFY(testCdb.arg[1].id == 3);
+
+    // Parse command with 1 good arg (and no pile ID)
+    status = console.collectInput(testCdb, TEST_INPUT("FLIP d"));
+    QVERIFY(status == CS_MISSING_ARGS); // No arg 2
+    QVERIFY(testCdb.cmdId = _FLIP_CMD);
+    QVERIFY(testCdb.arg[0].pileType == DECK);
+    QVERIFY(testCdb.arg[0].id == 0);
+    QVERIFY(testCdb.arg[1].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[1].id == INVALID_PILE_ID);
+
+    // Parse command with no args
+
+    // Parse command with bad command string
+
+    // Parse command with bad arg (invalid pile ID)
+
+    // Parse command with bad arg (invalid pile type)
+
+    // Parse command with excess args
+    QVERIFY(testCdb.src.pileType == testCdb.arg[0].pileType); // Quick alignment test
+    QVERIFY(testCdb.src.id == testCdb.arg[0].id);             //
+    QVERIFY(testCdb.dst.pileType == testCdb.arg[1].pileType); //
+    QVERIFY(testCdb.dst.id == testCdb.arg[1].id);             //
 }
 
 

@@ -3,13 +3,13 @@
 
 #define private public
 #include "../SWS/game.h"
-#include "../SWS/console.h"
 
 
 #define TEST_INPUT(s)  QTextStream(s)
 
 
-void stub_checkForWin(PileMap_t &pileMap, GameState_t &state);
+void stub_checkForWin(PileMap_t &, GameState_t &);
+CmdError_t stub_processCmd(Cdb_t &);
 
 
 // Test class for SWS project
@@ -28,6 +28,9 @@ private Q_SLOTS:
 
     // Console tests
     void testConsoleInputParsing();
+
+    // Command processing tests
+    void testCommandProcessing();
 };
 
 
@@ -41,7 +44,7 @@ SWS_Test::SWS_Test()
 // Test basic game object init
 void SWS_Test::testBasicGameInit()
 {
-    Game testGame(STD_DECK, stub_checkForWin);
+    Game testGame(STD_DECK, stub_checkForWin, stub_processCmd);
 
     // Verify card count
     QVERIFY(testGame.deck.cardList.size() == CARDS_PER_STD_DECK);
@@ -50,7 +53,7 @@ void SWS_Test::testBasicGameInit()
 // Test game pile registration
 void SWS_Test::testPileRegistration()
 {
-    Game testGame(STD_DECK, stub_checkForWin);
+    Game testGame(STD_DECK, stub_checkForWin, stub_processCmd);
 
     // Verify empty pile map
     QVERIFY(testGame.pileMap.size() == 0);
@@ -80,7 +83,7 @@ void SWS_Test::testPileRegistration()
 // Test card transfers between piles
 void SWS_Test::testCardXfer()
 {
-    Game testGame(STD_DECK, stub_checkForWin);
+    Game testGame(STD_DECK, stub_checkForWin, stub_processCmd);
     GameError_t status;
 
     // Register piles
@@ -178,6 +181,12 @@ void SWS_Test::testConsoleInputParsing()
     QVERIFY(testCdb.dst.id == testCdb.arg[1].id);             //
 }
 
+// Test command processing
+void SWS_Test::testCommandProcessing()
+{
+
+}
+
 
 ////////////////////////
 // Standard functions
@@ -185,6 +194,12 @@ void SWS_Test::testConsoleInputParsing()
 // Check for win stub
 void stub_checkForWin(PileMap_t &, GameState_t &)
 {
+}
+
+// Process command stub
+CmdError_t stub_processCmd(Cdb_t &)
+{
+    return CS_ERROR;
 }
 
 

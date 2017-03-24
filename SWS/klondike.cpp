@@ -1,10 +1,7 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDebug>
-#include "console.h"
 #include "game.h"
-#include "card.h"
-#include "command.h"
 
 using namespace std;
 
@@ -27,6 +24,12 @@ void klondikeCheckForWin(PileMap_t &pileMap, GameState_t &state)
     state = GAME_WON;
 }
 
+// Validate command
+CmdError_t klondikeValidateCmd(Cdb_t &cdb)
+{
+    return CS_ERROR;
+}
+
 // Klondike game loop
 int Klondike(int argc, char *argv[])
 {
@@ -37,27 +40,19 @@ int Klondike(int argc, char *argv[])
     Cdb_t cdb;
     CmdError_t cmdStatus;
 
-    // Set up parser
-    QCoreApplication::setApplicationName("Klondike");
-    QCoreApplication::setApplicationVersion("2.0");
-    parser.setApplicationDescription("SWS Klondike console game");
-    const QCommandLineOption helpOption = parser.addHelpOption();
-    const QCommandLineOption verOption = parser.addVersionOption();
-    const QCommandLineOption seedOption(QStringList() << "s" << "seed",
-        QCoreApplication::translate("main", "Set game seed."),
-        QCoreApplication::translate("main", "seed"));
-    parser.addOption(seedOption);
+    // Set up game app
+    const QCommandLineOption seedOpt = SetGameAppInfo("Klondike", "2.0", "SWS Klondike console game", parser);
 
     // Parse and handle
     parser.process(app);
-    if (parser.isSet(seedOption))
+    if (parser.isSet(seedOpt))
     {
-        gameSeed = parser.value(seedOption).toUInt(&gameSeedOk);
+        gameSeed = parser.value(seedOpt).toUInt(&gameSeedOk);
         if (!gameSeedOk) gameSeed = 0; // Reset if failed
     }
 
     // Create game control object
-    Game klondike(STD_DECK, klondikeCheckForWin, gameSeed);
+    Game klondike(STD_DECK, klondikeCheckForWin, klondikeValidateCmd, gameSeed);
     GameConsole console;
     qDebug() << "... Game object instantiated";
     qDebug() << "... Game seed:" << klondike.getDeckSeed();

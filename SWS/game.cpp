@@ -1,7 +1,6 @@
+#include <QCoreApplication>
 #include <QDebug>
 #include "game.h"
-#include "card.h"
-#include "console.h"
 
 using namespace std;
 
@@ -78,11 +77,14 @@ Card * Pile::popFromFront()
 // Init Game object
 Game::Game(DeckType_t deckType,
            void (*checkForWinFunc)(PileMap_t &pileMap, GameState_t &state),
+           CmdError_t (*validateCommandFunc)(Cdb_t &cdb),
            uint gameSeed) : deck(deckType)
 {
     state = GAME_IN_PROGRESS;
 
+    // Assign function pointers
     checkForWin = checkForWinFunc;
+    validateCommand = validateCommandFunc;
 
     // Deck will have been instantiated; shuffle here and record seed
     deckSeed = deck.shuffle(gameSeed);
@@ -210,4 +212,39 @@ GameError_t Game::moveCards(Pile *pSrcPile, Pile *pDstPile, int n)
 void Game::print(GameConsole &console)
 {
     console.printTable(pileMap);
+}
+
+// Process command in CDB
+CmdError_t Game::processCommand(Cdb_t &cdb)
+{
+    CmdError_t status = validateCommand(cdb);
+
+    if (status == CS_OK)
+    {
+        // Command is valid; execute
+    }
+
+    return status;
+}
+
+
+////////////////////////
+// Standard functions
+const QCommandLineOption & SetGameAppInfo(const QString &name, const QString &ver, const QString &description,
+                    QCommandLineParser &parser)
+{
+    // Init app info
+    QCoreApplication::setApplicationName(name);
+    QCoreApplication::setApplicationVersion(ver);
+
+    // Set up parser and add basic options
+    parser.setApplicationDescription(description);
+    const QCommandLineOption helpOpt = parser.addHelpOption();   // Add help option
+    const QCommandLineOption verOpt = parser.addVersionOption(); // Add version option
+    static const QCommandLineOption seedOpt(QStringList() << "s" << "seed",
+        QCoreApplication::translate("main", "Set game seed."),
+        QCoreApplication::translate("maine", "seed"));
+    parser.addOption(seedOpt);                                   // Add seed option
+
+    return seedOpt;
 }

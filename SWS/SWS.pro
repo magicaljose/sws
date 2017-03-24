@@ -32,4 +32,5 @@ HEADERS += \
     card.h \
     klondike.h \
     command.h \
-    console.h
+    console.h \
+    game_common.h

@@ -2,7 +2,7 @@
 #define CONSOLE_H
 
 #include <QDebug>
-#include "game.h"
+#include "game_common.h"
 #include "command.h"
 
 

@@ -1,7 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "game.h"
+#include "game_common.h"
 
 
 #define CDB_MAX_ARG_COUNT  (2)

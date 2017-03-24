@@ -115,30 +115,63 @@ void SWS_Test::testConsoleInputParsing()
     // Parse command with 2 good args
     status = console.collectInput(testCdb, TEST_INPUT("move t1 f3"));
     QVERIFY(status == CS_OK); // Max args set to '2' so should return 'CS_OK'
-    QVERIFY(testCdb.cmdId = _MOVE_CMD);
+    QVERIFY(testCdb.cmdId == _MOVE_CMD);
     QVERIFY(testCdb.arg[0].pileType == TABLEAU);
     QVERIFY(testCdb.arg[0].id == 1);
     QVERIFY(testCdb.arg[1].pileType == FOUNDATION);
     QVERIFY(testCdb.arg[1].id == 3);
 
     // Parse command with 1 good arg (and no pile ID)
-    status = console.collectInput(testCdb, TEST_INPUT("FLIP d"));
+    status = console.collectInput(testCdb, TEST_INPUT("FLIP D"));
     QVERIFY(status == CS_MISSING_ARGS); // No arg 2
-    QVERIFY(testCdb.cmdId = _FLIP_CMD);
+    QVERIFY(testCdb.cmdId == _FLIP_CMD);
     QVERIFY(testCdb.arg[0].pileType == DECK);
     QVERIFY(testCdb.arg[0].id == 0);
     QVERIFY(testCdb.arg[1].pileType == INVALID_PILE_TYPE);
     QVERIFY(testCdb.arg[1].id == INVALID_PILE_ID);
 
     // Parse command with no args
+    status = console.collectInput(testCdb, TEST_INPUT("key"));
+    QVERIFY(status == CS_MISSING_ARGS);
+    QVERIFY(testCdb.cmdId == _KEY_CMD);
+    QVERIFY(testCdb.arg[0].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[0].id == INVALID_PILE_ID);
+    QVERIFY(testCdb.arg[1].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[1].id == INVALID_PILE_ID);
 
     // Parse command with bad command string
+    status = console.collectInput(testCdb, TEST_INPUT("floop f2"));
+    QVERIFY(status == CS_BAD_CMD);
+    QVERIFY(testCdb.cmdId == _INVALID_CMD);
+    QVERIFY(testCdb.arg[0].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[0].id == INVALID_PILE_ID);
+    QVERIFY(testCdb.arg[1].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[1].id == INVALID_PILE_ID);
 
-    // Parse command with bad arg (invalid pile ID)
+    // Parse 'help' command with bad arg (invalid pile ID)
+    status = console.collectInput(testCdb, TEST_INPUT("help cd"));
+    QVERIFY(status == CS_BAD_ARG);
+    QVERIFY(testCdb.cmdId == _KEY_CMD);
+    QVERIFY(testCdb.arg[0].pileType == CELL);
+    QVERIFY(testCdb.arg[0].id == INVALID_PILE_ID);
+    QVERIFY(testCdb.arg[1].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[1].id == INVALID_PILE_ID);
 
     // Parse command with bad arg (invalid pile type)
+    status = console.collectInput(testCdb, TEST_INPUT("force move f4"));
+    QVERIFY(status == CS_BAD_ARG);
+    QVERIFY(testCdb.arg[0].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[0].id == INVALID_PILE_ID);
+    QVERIFY(testCdb.arg[1].pileType == INVALID_PILE_TYPE);
+    QVERIFY(testCdb.arg[1].id == INVALID_PILE_ID);
 
     // Parse command with excess args
+    status = console.collectInput(testCdb, TEST_INPUT("undo f0 t1 c3"));
+    QVERIFY(status == CS_TOO_MANY_ARGS);
+    QVERIFY(testCdb.arg[0].pileType == FOUNDATION);
+    QVERIFY(testCdb.arg[0].id == 0);
+    QVERIFY(testCdb.arg[1].pileType == TABLEAU);
+    QVERIFY(testCdb.arg[1].id == 1);
     QVERIFY(testCdb.src.pileType == testCdb.arg[0].pileType); // Quick alignment test
     QVERIFY(testCdb.src.id == testCdb.arg[0].id);             //
     QVERIFY(testCdb.dst.pileType == testCdb.arg[1].pileType); //

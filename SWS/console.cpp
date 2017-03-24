@@ -310,15 +310,16 @@ CmdError_t GameConsole::collectInput(Cdb_t &cdb, QTextStream &is)
 CmdError_t GameConsole::tokenize(Cdb_t &cdb, const QStringList &wordList)
 {
     CmdError_t status = CS_ERROR;
+    int a;
 
     // Collect command ID
     status = getCmdId(wordList[0], cdb.cmdId);
 
     // Collect CDB args; after one fails to tokenize, all remaining will
     //   be invalidated; excess words will be ignored
-    for (auto a = 0; a < CDB_MAX_ARG_COUNT; a++)
+    for (a = 0; a < CDB_MAX_ARG_COUNT; a++)
     {
-        if (a + 1 >= wordList.size()) status = CS_MISSING_ARGS;
+        if (a + 1 >= wordList.size() && status == CS_OK) status = CS_MISSING_ARGS;
         if (status == CS_OK)
         {
             // Collect input
@@ -331,6 +332,7 @@ CmdError_t GameConsole::tokenize(Cdb_t &cdb, const QStringList &wordList)
             cdb.arg[a].id       = INVALID_PILE_ID;
         }
     }
+    if (a + 1 != wordList.size() && status == CS_OK) status = CS_TOO_MANY_ARGS;
 
     return status;
 }
@@ -339,6 +341,7 @@ CmdError_t GameConsole::tokenize(Cdb_t &cdb, const QStringList &wordList)
 #define CMD_MAP_PAIRS    \
     CMD_MAP_PAIR(CLEAR), \
     CMD_MAP_PAIR(KEY),   \
+    {"HELP", _KEY_CMD},  \
     CMD_MAP_PAIR(MOVE),  \
     CMD_MAP_PAIR(FLIP),  \
     CMD_MAP_PAIR(QUIT),  \

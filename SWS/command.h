@@ -16,6 +16,7 @@ typedef enum
     CS_BAD_ARG_1,
     CS_BAD_ARG_2,
     CS_MISSING_ARGS,
+    CS_TOO_MANY_ARGS,
     CS_BAD_MOVE     = 20,
     CS_ERROR        = 50
 } CmdError_t;
